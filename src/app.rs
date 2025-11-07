@@ -1,5 +1,8 @@
 use leptos::wasm_bindgen::JsCast;
-use leptos::{html, prelude::*};
+use leptos::{html, prelude::*, Params};
+use leptos_router::components::Router;
+use leptos_router::hooks::use_query;
+use leptos_router::params::Params;
 use leptos_use::{
     use_mouse_with_options, use_window_size, UseMouseCoordType, UseMouseEventExtractor,
     UseMouseOptions,
@@ -17,6 +20,11 @@ impl UseMouseEventExtractor for Extractor {
     }
 }
 
+#[derive(Params, PartialEq)]
+struct CitySearch {
+    c: Option<String>,
+}
+
 fn find_city_by_name(name: &str) -> Option<&'static cities::City> {
     cities::all()
         .iter()
@@ -25,6 +33,12 @@ fn find_city_by_name(name: &str) -> Option<&'static cities::City> {
 
 #[component]
 pub fn CitySelector(city: RwSignal<String>) -> impl IntoView {
+    let query = use_query::<CitySearch>();
+    if let Ok(search) = (*query.read()).as_ref() {
+        if let Some(c) = &search.c {
+            city.set(c.to_string());
+        }
+    }
     view! {
         <div class="controls">
             <label for="city_input">
@@ -85,24 +99,27 @@ pub fn SkyCanvas(observer_lat: Memo<f64>, observer_lon: Memo<f64>) -> impl IntoV
 #[component]
 pub fn App() -> impl IntoView {
     let city = RwSignal::new(String::from("New York City"));
+
     let observer_lat =
         Memo::new(move |_| find_city_by_name(&city.get()).map_or(0.0, |c| c.latitude));
     let observer_lon =
         Memo::new(move |_| find_city_by_name(&city.get()).map_or(0.0, |c| c.longitude));
 
     view! {
-        <main class="layout">
-            <section class="sidebar">
-                <CitySelector city/>
-                <p>
-                    "Latitude: " {observer_lat} <br/>
-                    "Longtitude: " {observer_lon}
-                </p>
-            </section>
+        <Router>
+            <main class="layout">
+                <section class="sidebar">
+                    <CitySelector city/>
+                    <p>
+                        "Latitude: " {observer_lat} <br/>
+                        "Longtitude: " {observer_lon}
+                    </p>
+                </section>
 
-            <section class="canvas-container">
-                <SkyCanvas observer_lat observer_lon/>
-            </section>
-        </main>
+                <section class="canvas-container">
+                    <SkyCanvas observer_lat observer_lon/>
+                </section>
+            </main>
+        </Router>
     }
 }
