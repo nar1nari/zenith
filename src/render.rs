@@ -25,10 +25,10 @@ impl Vec2 {
 }
 
 fn project_to_screen(azimuth: f64, altitude: f64, screen_center: Vec2, sky_radius: f64) -> Vec2 {
-    let radius = (90.0 - altitude.to_degrees()) / 90.0 * sky_radius as f64;
+    let radius = (90.0 - altitude.to_degrees()) / 90.0 * sky_radius;
     Vec2::new(
-        screen_center.x + (radius * azimuth.sin()) as f64,
-        screen_center.y + (radius * azimuth.cos()) as f64,
+        screen_center.x + (radius * azimuth.sin()),
+        screen_center.y + (radius * azimuth.cos()),
     )
 }
 
@@ -42,7 +42,7 @@ pub fn render_sky(
     mouse_y: f64,
 ) {
     let screen_center = Vec2::new(canvas_width / 2.0, canvas_height / 2.0);
-    let min_dim = canvas_width.min(canvas_height) as f64;
+    let min_dim = canvas_width.min(canvas_height);
     let margin = min_dim * 0.05;
     let sky_radius = min_dim / 2.0 - margin;
     let planet_size = min_dim * 0.01;

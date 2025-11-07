@@ -33,7 +33,7 @@ pub fn CitySelector(city: RwSignal<String>) -> impl IntoView {
             <input id="city_input" list="cities" bind:value=city/>
 
             <datalist id="cities">
-                {cities::all().into_iter().map(|val| view! { <option value={val.city}/> }).collect::<Vec<_>>()}
+                {cities::all().iter().map(|val| view! { <option value={val.city}/> }).collect::<Vec<_>>()}
             </datalist>
         </div>
     }
