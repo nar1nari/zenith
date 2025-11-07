@@ -54,6 +54,11 @@ pub fn render_sky(
     ctx.set_fill_style_str("#181C25");
     ctx.fill();
 
+    let tri_height = sky_radius * 0.08;
+    let tri_width = sky_radius * 0.08;
+    let top_center = Vec2::new(screen_center.x, screen_center.y - sky_radius - tri_height);
+    draw_north(ctx, top_center, tri_width, tri_height);
+
     let jd = siderust::astro::JulianDate::from_utc(Utc::now());
     let lst = calculate_local_sidereal_time(jd.value(), observer_lon);
     let earth_pos = Earth::vsop87e(jd);
@@ -92,6 +97,23 @@ fn render_body(
     if highlight {
         ctx.set_font(&format!("{}px monospace", base_size * 3.0));
         ctx.set_fill_style_str("#DFE3EB");
+        ctx.set_text_align("left");
         let _ = ctx.fill_text(body.name, pos.x + radius, pos.y - radius);
     }
+}
+
+fn draw_north(ctx: &CanvasRenderingContext2d, top_center: Vec2, tri_width: f64, tri_height: f64) {
+    ctx.begin_path();
+    ctx.move_to(top_center.x, top_center.y);
+    ctx.line_to(top_center.x - tri_width / 2.0, top_center.y + tri_height);
+    ctx.line_to(top_center.x + tri_width / 2.0, top_center.y + tri_height);
+    ctx.close_path();
+
+    ctx.set_fill_style_str("#E67E80");
+    ctx.fill();
+
+    ctx.set_fill_style_str("#181C25");
+    ctx.set_font(&format!("{}px monospace", tri_height * 0.75));
+    ctx.set_text_align("center");
+    let _ = ctx.fill_text("N", top_center.x, top_center.y + tri_height * 0.95);
 }
