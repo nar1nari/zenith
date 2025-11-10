@@ -30,16 +30,19 @@ impl Body {
     }
 }
 
-fn moon_wrapper(julian_date: JulianDate) -> BodyPosition {
-    let moon = siderust::bodies::Moon::vsop87a(julian_date);
+fn moon_wrapper(jd: JulianDate) -> BodyPosition {
+    let moon_helio = siderust::bodies::Moon::vsop87a(jd);
+    let sun_bary = siderust::bodies::Sun::vsop87e(jd);
+
+    let (x, y, z) = (
+        moon_helio.position.x() + sun_bary.position.x(),
+        moon_helio.position.y() + sun_bary.position.y(),
+        moon_helio.position.z() + sun_bary.position.z(),
+    );
 
     siderust::targets::Target {
-        position: siderust::coordinates::cartesian::Position::new(
-            moon.position.x(),
-            moon.position.y(),
-            moon.position.z(),
-        ),
-        time: julian_date,
+        position: siderust::coordinates::cartesian::Position::new(x, y, z),
+        time: jd,
         proper_motion: None,
     }
 }
